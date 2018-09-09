@@ -8,7 +8,8 @@ class SignupForm extends Component {
             username: '',
             email: '',
             password: '',
-            conPassword: ''
+            conPassword: '',
+            errors: {},
         }
     }
     onChange = (e) => {
@@ -16,7 +17,10 @@ class SignupForm extends Component {
     }
     onSubmit = (e) => {
        e.preventDefault();
-       this.props.userSignup(this.state)
+       this.props.userSignup(this.state).then(
+           ()=>{},
+           ({response})=>{this.setState({errors: response.data})}
+       )
     }
     render() {
         return (
