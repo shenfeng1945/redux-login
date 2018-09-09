@@ -1,4 +1,5 @@
-import React, { Component,PropTypes } from 'react';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 class SignupForm extends Component {
     constructor(props) {
@@ -15,7 +16,7 @@ class SignupForm extends Component {
     }
     onSubmit = (e) => {
        e.preventDefault();
-       this.props.userSignUp(this.state)
+       this.props.userSignup(this.state)
     }
     render() {
         return (
