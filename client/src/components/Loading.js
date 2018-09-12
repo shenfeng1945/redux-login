@@ -19,23 +19,33 @@ const Rotate = styled.div`
   transform: translate(-50%,-50%);
 `
 class Loading extends Component {
+    static propTypes = {
+        loading: PropTypes.bool
+    }
     render() {
-        return (
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'rgba(0,0,0,0.3)',
-            }}>
-                <Rotate>
-                    <svg style={{ width: '100%', height: '100%' }}>
-                        <use xlinkHref='#icon-loading'></use>
-                    </svg>
-                </Rotate>
-            </div>
-        )
+        const { loading } = this.props;
+        if (loading) {
+            return (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.3)',
+                }}>
+                    <Rotate>
+                        <svg style={{ width: '100%', height: '100%' }}>
+                            <use xlinkHref='#icon-loading'></use>
+                        </svg>
+                    </Rotate>
+                </div>
+            )
+        } else {
+             return <div></div>
+        }
+
     }
 }
+
 export default Loading;

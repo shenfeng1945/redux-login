@@ -12,16 +12,21 @@ class SignupForm extends Component {
             password: '',
             conPassword: '',
             errors: {},
+            loading: false
         }
     }
     onChange = (e) => {
         this.setState({ [e.target.name]: e.target.value })
     }
     onSubmit = (e) => {
+       const {username,email,password,conPassword} = this.state
        e.preventDefault();
-       this.props.userSignup(this.state).then(
-           ()=>{},
-           ({response})=>{this.setState({errors: response.data})}
+       this.setState({loading:true})
+       this.props.userSignup({username,email,password,conPassword}).then(
+           ()=>{
+             this.context.router.history.push('/')
+           },
+           ({response})=>{this.setState({errors: response.data,loading: false})}
        )
     }
     render() {
@@ -66,12 +71,15 @@ class SignupForm extends Component {
                     {errors.conPassword && <div style={{color:'red'}}>{errors.conPassword}</div>}
                 </div>
                 <button className="ui button primary" type="submit">Sign Up</button>
-                <Loading />
+                <Loading loading={this.state.loading}/>
             </form>
         )
     }
 }
 SignupForm.propTyps = {
     userSignUp: PropTypes.func.isRequired
+}
+SignupForm.contextTypes = {
+    router: PropTypes.object
 }
 export default SignupForm;
