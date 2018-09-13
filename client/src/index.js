@@ -10,6 +10,7 @@ import rootReducer from './reducers'
 import { BrowserRouter as Router} from "react-router-dom";
 import routes from './routers'
 import NavigationBar from './components/NavigationBar'
+import FlashMsgList from './components/flash/FlashMsgList'
 const store = createStore(
     rootReducer,
     composeWithDevTools(
@@ -22,6 +23,7 @@ ReactDOM.render(
   <Router>
    <div className="ui container">
       <NavigationBar/>
+      <FlashMsgList />
       {routes}
    </div>
   </Router>
