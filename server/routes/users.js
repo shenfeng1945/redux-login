@@ -1,7 +1,9 @@
 import express from 'express';
 import isEmpty from 'lodash/isEmpty';
 import validator from 'validator';
-
+import mongoose from 'mongoose';
+import User from '../models/user';
+import bcrypt from 'bcrypt'; //加密密码
 let router = express.Router();
 
 const validtorInput = (data) =>{
@@ -31,10 +33,50 @@ const validtorInput = (data) =>{
    }
 }
 
-router.post('/',(req,res)=>{
+router.post('/',(req,res,next)=>{
    const {errors,isValid} = validtorInput(req.body);
+   const {username,password,email} = req.body;
    if(isValid){
-       res.json({success:true})
+       const a = new Promise((resolve,reject)=>{
+         User.find({username}).exec().then(res=>{
+            if(res.length>0){
+                reject()
+            }else{
+                resolve()
+            }
+         })
+       })
+       const b = new Promise((resolve,reject)=>{
+        User.find({email}).exec().then(res=>{
+           if(res.length>0){
+               reject()
+           }else{
+               resolve()
+           }
+        })
+      })
+      Promise.all([a,b]).then(res=>{
+        bcrypt.hash(password,10,(error,hash)=>{
+            if(error){
+                return res.status(500).json({
+                    error
+                })
+            }else{
+                const user = {
+                    username,
+                    email,
+                    password: hash,
+                    created: new Date().toLocaleString()
+                }
+                User(user).save((err,data)=>{
+                    if(err) throw err;
+                    res.json({success: true});
+                })
+            }
+        })
+      }).catch(err=>{
+          console.log('no')
+      })
    }else{
        res.status(400).json(errors)
    }
