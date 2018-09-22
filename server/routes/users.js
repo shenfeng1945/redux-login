@@ -6,80 +6,85 @@ import User from '../models/user';
 import bcrypt from 'bcrypt'; //加密密码
 let router = express.Router();
 
-const validtorInput = (data) =>{
-   const errors = {}; 
-   // 四个为空的判断
-   if(validator.isEmpty(data.username)){
-       errors.username = 'The field is required';
-   }
-   if(validator.isEmpty(data.email)){
-       errors.email = 'The field is required';
-   }
-   if(!validator.isEmail(data.email)){
-      errors.email = 'Email is invalid';
-   }
-   if(validator.isEmpty(data.password)){
-       errors.password = 'The field is required';
-   }
-   if(validator.isEmpty(data.conPassword)){
-       errors.conPassword = 'The field is required';
-   }
-   if(!validator.equals(data.password,data.conPassword)){
-       errors.conPassword = 'Password must match'
-   }
-   return {
-       errors,
-       isValid: isEmpty(errors)
-   }
+const validtorInput = (data) => {
+    const errors = {};
+    // 四个为空的判断
+    if (validator.isEmpty(data.username)) {
+        errors.username = 'The field is required';
+    }
+    if (validator.isEmpty(data.email)) {
+        errors.email = 'The field is required';
+    }
+    if (!validator.isEmail(data.email)) {
+        errors.email = 'Email is invalid';
+    }
+    if (validator.isEmpty(data.password)) {
+        errors.password = 'The field is required';
+    }
+    if (validator.isEmpty(data.conPassword)) {
+        errors.conPassword = 'The field is required';
+    }
+    if (!validator.equals(data.password, data.conPassword)) {
+        errors.conPassword = 'Password must match'
+    }
+    return {
+        errors,
+        isValid: isEmpty(errors)
+    }
 }
 
-router.post('/',(req,res,next)=>{
-   const {errors,isValid} = validtorInput(req.body);
-   const {username,password,email} = req.body;
-   if(isValid){
-       const a = new Promise((resolve,reject)=>{
-         User.find({username}).exec().then(res=>{
-            if(res.length>0){
-                reject()
-            }else{
-                resolve()
-            }
-         })
-       })
-       const b = new Promise((resolve,reject)=>{
-        User.find({email}).exec().then(res=>{
-           if(res.length>0){
-               reject()
-           }else{
-               resolve()
-           }
-        })
-      })
-      Promise.all([a,b]).then(res=>{
-        bcrypt.hash(password,10,(error,hash)=>{
-            if(error){
-                return res.status(500).json({
-                    error
-                })
-            }else{
-                const user = {
-                    username,
-                    email,
-                    password: hash,
-                    created: new Date().toLocaleString()
+router.post('/signup', (req, res, next) => {
+    const { errors, isValid } = validtorInput(req.body);
+    const { username, password, email } = req.body;
+    if (isValid) {
+        User.find({ $or: [{ username }, { email }] }, (err, docs) => {
+            // 有同名
+            if (docs.length) {
+                if (docs[0]) {
+                    errors.username = '用户已存在'
                 }
-                User(user).save((err,data)=>{
-                    if(err) throw err;
-                    res.json({success: true});
+                if (docs[1]) {
+                    errors.email = '邮箱已存在'
+                }
+                res.status(400).json(errors)
+            } else {
+                bcrypt.hash(password, 10, (err, hash) => {
+                    if (err) {
+                        res.status(500).json({ error: '加密失败' })
+                    } else {
+                        const user = {
+                            username,
+                            email,
+                            password: hash,
+                            created: new Date().toLocaleString()
+                        }
+                        User(user).save(() => {
+                            res.status(200).json({ success: true });
+                        })
+                    }
                 })
             }
         })
-      }).catch(err=>{
-          console.log('no')
-      })
-   }else{
-       res.status(400).json(errors)
-   }
+    } else {
+        res.status(400).json(errors);
+    }
+})
+
+router.post('/login', (req, res, next) => {
+    const { users, password } = req.body;
+    const errors = {};
+    User.find({ $or: [{ username: users }, { email: users }] }, (err_docs, docs) => {
+        if (docs.length === 1) {
+            bcrypt.compare(password, docs[0].password, (err_b, res_b) => {
+                if (res_b) {
+                    res.status(200).json({ success: '登录成功' })
+                } else {
+                    errors.password = '密码不正确'
+                    res.status(400).json(errors)
+                }
+            })
+        }
+    })
 })
 
 export default router;
