@@ -34,7 +34,7 @@ class LoginForm extends Component {
                   this.context.router.history.push('/')
               },
               ({response}) => {
-                  this.setState({errors: response.data,loading:false})
+                  this.setState({errors: response.data.errors,loading:false})
                 }
           )
       }
@@ -47,12 +47,12 @@ class LoginForm extends Component {
     return (
       <form className="ui form" onSubmit={this.onSubmit}>
          <div className={className('field',{error: !!errors.users})}>
-            <label>Username Or Email</label>
+            <label>Username/Email</label>
             <input type="text"
                 name="users" 
                 value={this.state.users}
                 onChange={this.onChange}
-                placeholder="Username or Email"
+                placeholder="Username/Email"
             />
             {errors.users && <div style={{color:'red'}}>{errors.users}</div>}
          </div>
