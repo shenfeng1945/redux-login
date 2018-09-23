@@ -2,7 +2,7 @@ import React, { Component} from 'react';
 import PropTypes from 'prop-types';
 import SignupForm from './SignupForm'
 import {connect} from 'react-redux'
-import {userSignup} from '../../actions/signupActions'
+import {userSignup,userIdentify} from '../../actions/signupActions'
 import {addFlashMsg} from '../../actions/flashMsgs'
 class SignupPage extends Component {
    static propTypes = {
@@ -12,10 +12,12 @@ class SignupPage extends Component {
         return (
             <div>
                 <h1>Join our community!</h1>
-                <SignupForm addFlashMsg={this.props.addFlashMsg} userSignup={this.props.userSignup}></SignupForm>
+                <SignupForm addFlashMsg={this.props.addFlashMsg} 
+                            userIdentify={this.props.userIdentify}
+                            userSignup={this.props.userSignup}></SignupForm>
             </div>
         );
     }
 }
 
-export default connect(null,{userSignup,addFlashMsg})(SignupPage);
+export default connect(null,{userSignup,addFlashMsg,userIdentify})(SignupPage);

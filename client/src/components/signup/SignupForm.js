@@ -12,7 +12,8 @@ class SignupForm extends Component {
             password: '',
             conPassword: '',
             errors: {},
-            loading: false
+            loading: false,
+            inValid: false
         }
     }
     onChange = (e) => {
@@ -33,6 +34,25 @@ class SignupForm extends Component {
            ({response})=>{this.setState({errors: response.data,loading: false})}
        )
     }
+    checkIsExist = (e) =>{
+        const name = e.target.name
+        const value = e.target.value
+        let errors = {};
+        let inValid;
+        if(value !== ''){
+            this.props.userIdentify(value).then(res=>{
+               const {identify} = res.data;
+               if(identify){
+                  inValid = true;
+                  errors[name] = `${name} is exist`
+               }else{
+                  inValid = false;
+                  errors = {}
+               }
+                this.setState({errors,inValid})
+            })
+        }
+    }
     render() {
         const {errors} = this.state;
         return (
@@ -43,6 +63,7 @@ class SignupForm extends Component {
                         name="username"
                         value={this.state.username}
                         onChange={this.onChange}
+                        onBlur={this.checkIsExist}
                         placeholder="Username" />
                     {errors.username && <div style={{color:'red'}}>{errors.username}</div>}
                 </div>
@@ -51,6 +72,7 @@ class SignupForm extends Component {
                     <input type="email" 
                            value={this.state.email}
                            onChange={this.onChange}
+                           onBlur={this.checkIsExist}
                            name="email"
                            placeholder="Email" />
                     {errors.email && <div style={{color:'red'}}>{errors.email}</div>}
@@ -74,7 +96,9 @@ class SignupForm extends Component {
                            placeholder="Confirm Password" />
                     {errors.conPassword && <div style={{color:'red'}}>{errors.conPassword}</div>}
                 </div>
-                <button className="ui button primary" type="submit">Sign Up</button>
+                <button className="ui button primary" 
+                        disabled={this.state.inValid}
+                        type="submit">Sign Up</button>
                 <Loading loading={this.state.loading}/>
             </form>
         )
