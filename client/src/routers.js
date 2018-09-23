@@ -3,11 +3,14 @@ import {Route} from 'react-router-dom'
 import App from './components/App'
 import SignupPage from './components/signup/SignupPage'
 import LoginPage from './components/login/LoginPage'
+import CreateEvents from './components/CreateEvent'
+import requireAuth from './utils/requireAuth'
 
 export default (
     <div className="contain">
       <Route path="/" exact component={App}></Route>
       <Route path="/signup" component={SignupPage}></Route>
       <Route path="/login" component={LoginPage}></Route>
+      <Route path="/create" component={requireAuth(CreateEvents)}></Route>
     </div>
 )
